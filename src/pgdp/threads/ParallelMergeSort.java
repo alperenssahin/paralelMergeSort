@@ -6,16 +6,22 @@ import java.util.List;
 import java.util.concurrent.RecursiveAction;
 
 public class ParallelMergeSort extends RecursiveAction {
-    Comparable[] array = null;
+    volatile static Comparable[] array = null;
+    volatile static Comparable[] helper = null;
     int low, high;
 
     public ParallelMergeSort(Comparable[] array) {
         // TODO
-        this(array, 0, array.length);
+        this(array, 0, array.length-1);
     }
 
     public ParallelMergeSort(Comparable[] array, int low, int high) {
-        this.array = array;
+        if (ParallelMergeSort.array == null) {
+            ParallelMergeSort.array = array;
+        }
+        if (ParallelMergeSort.helper == null) {
+            ParallelMergeSort.helper = new Comparable[ParallelMergeSort.array.length];
+        }
         this.low = low;
         this.high = high;
     }
@@ -25,30 +31,33 @@ public class ParallelMergeSort extends RecursiveAction {
         // TODO
         if (low < high) {
             int mid = low + high / 2;
-            invokeAll(new ParallelMergeSort(array, low, mid), new ParallelMergeSort(array, mid + 1, high));
+//            invokeAll(new ParallelMergeSort(array, low, mid), new ParallelMergeSort(array, mid + 1, high));
+            new ParallelMergeSort(array, low, mid).fork();
+            new ParallelMergeSort(array, mid + 1, high).fork();
             merge(mid);
         }
     }
 
-    private void merge(int mid) {
-        Comparable[] left = Arrays.copyOfRange(array, low, mid + 1);
-        Comparable[] right = Arrays.copyOfRange(array, mid + 1, high + 1);
-        int f = low;
+    private void merge(int middle) {
+        for (int i = low; i <= high; i++) {
+            helper[i] = array[i];
+        }
 
-        int li = 0, ri = 0;
-        while (li < left.length && ri < right.length) {
-            if (left[li].compareTo(right[ri]) <= 0) {
-                array[f++] = left[li++];
+        int helperLeft = low;
+        int helperRight = middle + 1;
+        int current = low;
+
+        while (helperLeft <= middle && helperRight <= high) {
+            if (helper[helperLeft].compareTo(helper[helperRight]) <= 0) {
+                array[current] = helper[helperLeft++];
             } else {
-                array[f++] = right[ri++];
+                array[current] = helper[helperRight++];
             }
-        }
-        while (li < left.length) {
-            array[f++] = left[li++];
+            current++;
         }
 
-        while (ri < right.length) {
-            array[f++] = right[ri++];
+        while (helperLeft <= middle) {
+            array[current++] = helper[helperLeft++];
         }
     }
 
