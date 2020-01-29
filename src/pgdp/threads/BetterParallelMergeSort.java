@@ -30,8 +30,8 @@ public class BetterParallelMergeSort extends RecursiveAction {
             if(size > LIMIT){
                 int mid = low + high / 2;
 //            invokeAll(new ParallelMergeSort(BetterParallelMergeSort.array, low, mid), new ParallelMergeSort(BetterParallelMergeSort.array, mid + 1, high));
-                new ParallelMergeSort(array, low, mid).fork();
-                new ParallelMergeSort(array, mid + 1, high).fork();
+                new BetterParallelMergeSort(array, low, mid).fork();
+                new BetterParallelMergeSort(array, mid + 1, high).fork();
             }else{
                 MergeSort.mergesort(BetterParallelMergeSort.array,BetterParallelMergeSort.helper,low,high);
             }
