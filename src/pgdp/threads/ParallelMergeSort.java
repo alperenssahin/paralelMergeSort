@@ -12,7 +12,7 @@ public class ParallelMergeSort extends RecursiveAction {
 
     public ParallelMergeSort(Comparable[] array) {
         // TODO
-        this(array, 0, array.length-1);
+//        this(array, 0, array.length-1);
     }
 
     public ParallelMergeSort(Comparable[] array, int low, int high) {
